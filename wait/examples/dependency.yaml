@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dep
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: dep
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dep
+  labels:
+    app: dep
+spec:
+  containers:
+    - image: rhzx3519/tcp_server
+      name: dep
+      args: ["-port", "80"]
