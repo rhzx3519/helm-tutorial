@@ -5,11 +5,16 @@ metadata:
   labels:
     app: myapp
 spec:
+  serviceAccountName: jobs-reader
+  initContainers:
+    - name: wait-for-job
+      image: rhzx3519/wait
+      args: [ job, pi ]
+    - name: wait-for-svc
+      image: rhzx3519/wait
+      args: [ tcp, dep, "80", "120" ]
   containers:
-    - name: myapp-container
+    - name: main
       image: busybox:1.28
       command: ['sh', '-c', 'echo The app is running! && sleep 3600']
-  initContainers:
-    - name: wait
-      image: rhzx3519/wait
-      args: [tcp, dep, "80", "10"]
+

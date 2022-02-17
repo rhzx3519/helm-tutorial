@@ -26,14 +26,28 @@ function success_exit {
     exit 0;
 }
 
+#
+# 指向内部 API 服务器的主机名
+APISERVER=https://kubernetes.default.svc
+# 服务账号令牌的路径
+SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
+# 读取 Pod 的名字空间
+NAMESPACE=$(cat ${SERVICEACCOUNT}/namespace)
+# 读取服务账号的持有者令牌
+TOKEN=$(cat ${SERVICEACCOUNT}/token)
+# 引用内部证书机构（CA）
+CACERT=${SERVICEACCOUNT}/ca.crt
+#
+
 TIMEOUT=120 # seconds
 
 PROBE_HTTP="http"
 PROBE_TCP="tcp"
+PROBE_JOB="job"
 
-# protocol, domain_name, port
-# httpGet, path, port, httpHeaders,
-# tcpSocket, path, port
+# httpGet, path, port, httpHeaders, timeout
+# tcpSocket, path, port, timeout
+# jobName, timeout
 PROBE_TYPE=$1
 SERVICE_NAME=$2
 SERVICE_PORT=$3
@@ -63,8 +77,23 @@ function wait_http() {
   err_exit "launch failed, depended service is not ready..."
 }
 
+function wait_job() {
+  job_name=$SERVICE_NAME
+
+  for i in `seq $TIMEOUT` ; do
+    if [[ $(curl --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
+                -X GET ${APISERVER}/apis/batch/v1/namespaces/kubia/jobs/$job_name \
+                | jq ".status.succeeded") == "1" ]]; then
+       success_exit
+    fi
+    sleep 1
+  done
+
+  err_exit "launch failed, depended service is not ready..."
+}
+
 function main() {
-  echo "Wait for dependencies ready..."
+  echo "Wait for dependencies to be ready..."
   echo "probe_type: $PROBE_TYPE, service_name: $SERVICE_NAME, service_port: $SERVICE_PORT, timeout: $TIMEOUT"
   case $PROBE_TYPE in
     $PROBE_HTTP)
@@ -72,6 +101,9 @@ function main() {
       ;;
     "$PROBE_TCP")
       wait_tcp
+      ;;
+    "$PROBE_JOB")
+      wait_job
       ;;
   esac
 }
