@@ -1,0 +1,16 @@
+favorite:
+  drink: coffee
+  food: pizza
+pizzaToppings:
+  - mushrooms
+  - cheese
+  - peppers
+  - onions
+
+mysubchart:
+  dessert: ice cream
+
+mysubchart1:
+  dessert: fruit
+  drink: wine
+

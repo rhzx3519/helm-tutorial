@@ -1,0 +1,9 @@
+dependencies:
+- name: mysubchart
+  repository: ""
+  version: 0.x.x
+- name: mysubchart1
+  repository: ""
+  version: 0.x.x
+digest: sha256:13f6d0b9e2f0158cbd5857ef5559db9b8257d112fa0ceac50ceebfcbafe5f718
+generated: "2022-02-22T15:11:15.883233+08:00"

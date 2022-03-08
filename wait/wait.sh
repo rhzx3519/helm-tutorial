@@ -82,7 +82,7 @@ function wait_job() {
 
   for i in `seq $TIMEOUT` ; do
     if [[ $(curl -m 1 --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" \
-                -X GET ${APISERVER}/apis/batch/v1/namespaces/kubia/jobs/$job_name \
+                -X GET ${APISERVER}/apis/batch/v1/namespaces/$NAMESPACE/jobs/$job_name \
                 | jq ".status.succeeded") == "1" ]]; then
        success_exit
     fi
